@@ -1,2 +1,1 @@
-ElectroDJ-Desktop
-=================
+Desktop companion for ElectroDJ app.
