@@ -1,5 +1,3 @@
-// server.js
-
 // BASE SETUP
 // =============================================================================
 
@@ -10,6 +8,7 @@ var bodyParser = require('body-parser');
 var prompt = require('prompt');
 var fs = require('fs');
 var Player = require('player');
+var musicDirectory;
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -27,6 +26,25 @@ router.get('/', function(req, res) {
 	res.json({ message: 'hooray! welcome to our api!' });	
 });
 
+router.get('/request', function(req, res) {
+	var music = fs.readdirSync(musicDirectory);
+	var matches = [];
+	for (var i = 0; i < music.length; ++i)
+	{
+		if (music[i].match(new RegExp(req.query.song, 'i')))
+		{
+			matches.push(music[i]);
+		}
+	}
+	
+	var song = matches.pop();
+	res.json({ request: song, query: req.query.song });
+	player = new Player(musicDirectory + '\\' + song);
+	player.play(function(err, player){
+	  console.log('playend!');
+	});
+});
+
 // more routes for our API will happen here
 
 // REGISTER OUR ROUTES -------------------------------
@@ -35,28 +53,23 @@ app.use('/api', router);
 
 // START THE SERVER
 // =============================================================================
-app.listen(port);
-console.log('Magic happens on port ' + port);
-
-var os=require('os');
-var ifaces=os.networkInterfaces();
-for (var dev in ifaces) {
-  var alias=0;
-  ifaces[dev].forEach(function(details){
-    if (details.family=='IPv4') {
-      console.log(dev+(alias?':'+alias:''),details.address);
-      ++alias;
-    }
-  });
-}
-
 prompt.start();
 prompt.get(['musicDirectory'], function (err, result) {
+	app.listen(port);
+	console.log('Magic happens on port ' + port);
+	
+	var os=require('os');
+	var ifaces=os.networkInterfaces();
+	for (var dev in ifaces) {
+	  var alias=0;
+	  ifaces[dev].forEach(function(details){
+		if (details.family=='IPv4') {
+		  console.log(dev+(alias?':'+alias:''),details.address);
+		  ++alias;
+		}
+	  });
+	}
+
 	result.musicDirectory = 'C:\\Users\\Mohammad Doleh\\Music';
-	var music = fs.readdirSync(result.musicDirectory);
-	console.log(music);
-	player = new Player(result.musicDirectory + '\\' + music[0]);
-	player.play(function(err, player){
-	  console.log('playend!');
-	});
+	musicDirectory = result.musicDirectory;
 });
