@@ -9,7 +9,7 @@ var app        = express(); 				// define our app using express
 var bodyParser = require('body-parser');
 var prompt = require('prompt');
 var fs = require('fs');
-var play = require('play');
+var Player = require('player');
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -55,6 +55,8 @@ prompt.get(['musicDirectory'], function (err, result) {
 	result.musicDirectory = 'C:\\Users\\Mohammad Doleh\\Music';
 	var music = fs.readdirSync(result.musicDirectory);
 	console.log(music);
-	debugger;
-	play.sound(result.musicDirectory + '\\' + music[0]);
+	player = new Player(result.musicDirectory + '\\' + music[0]);
+	player.play(function(err, player){
+	  console.log('playend!');
+	});
 });
