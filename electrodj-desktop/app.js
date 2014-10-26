@@ -107,18 +107,26 @@ router.get('/request', function(req, res) {
 		song = {};
 		song.filename = temp;
 	}
-	// for (var i = 0; i < music.length; ++i)
-	// {
-		// if (music[i].title === song.title) index = i;
-	// }
 	
-	res.json({ message: "Your request has been successfully submitted! There are currently " + songQueue.length + " song(s) on the list." });
 	if (currentlyPlaying || songQueue.length > 0) {
-		songQueue.push(song.filename);
+		var index = songQueue.indexOf(song.filename); 
+		if (index > -1)
+		{
+			if (index !== 0) {
+				var temp = songQueue[index];
+				songQueue = songQueue.slice(index, 1);
+				songQueue.splice(index - 1, 0, temp);
+			}
+		}
+		else {
+			songQueue.push(song.filename);
+		}
+		res.json({ message: "Your request has been successfully submitted! There are currently " + songQueue.length + " song(s) on the list. " + JSON.stringify(songQueue) });
 		return;
 	}
 	
 	playSong(song.filename);
+	res.json({ message: "Your request has been successfully submitted! There are currently " + songQueue.length + " song(s) on the list. " + JSON.stringify(songQueue) });
 });
 
 // more routes for our API will happen here
