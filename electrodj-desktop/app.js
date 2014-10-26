@@ -12,6 +12,7 @@ var mm = require('audio-metadata');
 
 // app globals
 var musicDirectory, musicFiles, music, currentlyPlaying;
+var songQueue = [];
 
 // directories
 var routes = require('./routes');
@@ -52,6 +53,19 @@ router.get('/request', function(req, res) {
 		return false;
 	};
 	
+	var playSong = function (filename) {
+		player = new Player(musicDirectory + '\\' + filename);
+		player.play(function (err, player) {
+			currentlyPlaying = false;
+			if (songQueue.length > 0 || currentlyPlaying) {
+				songQueue.push(filename);
+				var file = songQueue.shift();
+				playSong(file);
+			}
+		})
+		currentlyPlaying = true;
+	};
+	
 	var matches = [];
 	var songTitleRegEx = new RegExp(req.query.songTitle, 'i');
 	var songArtistRegEx = new RegExp(req.query.songArtist, 'i');
@@ -81,7 +95,7 @@ router.get('/request', function(req, res) {
 	}
 	
 	if (matches.length < 1) {
-		res.json( { message: "no songs found" } );
+		res.json( { message: "No songs found. There are currently " + songQueue.length + " song(s) on the list." } );
 		return;
 	}
 	
@@ -98,13 +112,13 @@ router.get('/request', function(req, res) {
 		// if (music[i].title === song.title) index = i;
 	// }
 	
-	res.json({ request: song });
-	player = new Player(musicDirectory + '\\' + song.filename);
-	player.play(function(err, player){
-	  console.log('play end!');
-	  currentlyPlaying = false;
-	});
-	currentlyPlaying = true;
+	res.json({ message: "Your request has been successfully submitted! There are currently " + songQueue.length + " song(s) on the list." });
+	if (currentlyPlaying || songQueue.length > 0) {
+		songQueue.push(song.filename);
+		return;
+	}
+	
+	playSong(song.filename);
 });
 
 // more routes for our API will happen here
