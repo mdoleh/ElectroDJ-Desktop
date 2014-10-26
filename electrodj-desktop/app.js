@@ -37,22 +37,6 @@ var router = express.Router(); 				// get an instance of the express Router
 router.get('/', routes.index);
 
 router.get('/request', function(req, res) {
-	// var matches = [];
-	// for (var i = 0; i < music.length; ++i)
-	// {
-		// if (music[i].match(new RegExp(req.query.song, 'i')))
-		// {
-			// matches.push(music[i]);
-		// }
-	// }
-	var checkArtist = function (artistList) {
-		for (var i = 0; i < artistList.length; ++i)
-		{
-			if (artistList[i].match(songArtistRegEx)) return true;
-		}
-		return false;
-	};
-	
 	var playSong = function (filename) {
 		player = new Player(musicDirectory + '\\' + filename);
 		player.play(function (err, player) {
@@ -65,17 +49,17 @@ router.get('/request', function(req, res) {
 		})
 		currentlyPlaying = true;
 	};
-	
+
 	var matches = [];
 	var songTitleRegEx = new RegExp(req.query.songTitle, 'i');
 	var songArtistRegEx = new RegExp(req.query.songArtist, 'i');
 	if (req.query.songTitle !== "" && req.query.songArtist !== "") {
 		matches = music.filter(function(item){ return item.title.match(songTitleRegEx)
-						&& checkArtist(item.artist); });
+						&& item.artist.match(songArtistRegEx); });
 	} else if (req.query.songTitle !== "" && req.query.songArtist === "") {
 		matches = music.filter(function(item){ return item.title.match(songTitleRegEx); });
 	} else if (req.query.songTitle === "" && req.query.songArtist !== "") {
-		matches = music.filter(function(item){ return checkArtist(item.artist); });
+		matches = music.filter(function(item){ return item.artist.match(songArtistRegEx); });
 	} else {
 		// do nothing
 	}
@@ -84,11 +68,11 @@ router.get('/request', function(req, res) {
 	{
 		if (req.query.songTitle !== "" && req.query.songArtist !== "") {
 		matches = musicFiles.filter(function(item){ return item.match(songTitleRegEx)
-						&& checkArtist(item); });
+						&& item.match(songArtistRegEx); });
 		} else if (req.query.songTitle !== "" && req.query.songArtist === "") {
 			matches = musicFiles.filter(function(item){ return item.match(songTitleRegEx); });
 		} else if (req.query.songTitle === "" && req.query.songArtist !== "") {
-			matches = musicFiles.filter(function(item){ return checkArtist(item); });
+			matches = musicFiles.filter(function(item){ return item.match(songArtistRegEx); });
 		} else {
 			// do nothing
 		}
@@ -114,7 +98,7 @@ router.get('/request', function(req, res) {
 		{
 			if (index !== 0) {
 				var temp = songQueue[index];
-				songQueue = songQueue.slice(index, 1);
+				songQueue.splice(index, 1);
 				songQueue.splice(index - 1, 0, temp);
 			}
 		}
@@ -128,8 +112,6 @@ router.get('/request', function(req, res) {
 	playSong(song.filename);
 	res.json({ message: "Your request has been successfully submitted! There are currently " + songQueue.length + " song(s) on the list. " + JSON.stringify(songQueue) });
 });
-
-// more routes for our API will happen here
 
 // REGISTER OUR ROUTES -------------------------------
 app.use('/', router);
@@ -170,9 +152,5 @@ prompt.get(['musicDirectory'], function (err, result) {
 			metadata.filename = musicFiles[i];
 		}
 		music.push(metadata);
-		// listen for the metadata event
-		// parser.on('metadata', function (result) {
-			// music.push(result);
-		// });
 	}
 });
