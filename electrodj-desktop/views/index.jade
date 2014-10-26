@@ -1,5 +1,30 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  .container
+      .row.clearfix
+        .col-md-12.column
+          .jumbotron
+            h1
+              | ElectroDJ
+          .alert.alert-success.alert-dismissable
+            button.close(type='button', data-dismiss='alert', aria-hidden='true') ×
+            h4
+            | Alert!
+            strong Warning!
+            | Best check yo self, you're not looking too good.
+            a.alert-link(href='#') alert link
+          h3
+            | Make a request
+          form.form-horizontal(role='form')
+            .form-group
+              label.col-sm-2.control-label(for='inputTitle') Title
+              .col-sm-10
+                input#inputTitle.form-control(type='text')
+            .form-group
+              label.col-sm-2.control-label(for='inputArtist') Artist
+              .col-sm-10
+                input#inputArtist.form-control(type='text')
+            .form-group
+              .col-sm-offset-2.col-sm-10
+                div#buttonRequest.btn.btn-primary Send Request
